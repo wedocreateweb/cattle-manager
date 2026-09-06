@@ -50,13 +50,8 @@ const SignUp = () => {
     });
 
     if (signUp.status === 'complete') {
-      await signUp.finalize({
+      const { error: finalizeError } = await signUp.finalize({
         navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session?.currentTask);
-            return;
-          }
-
           const url = decorateUrl('/(tabs)');
           if (url.startsWith('http')) {
             // Only use window.location on web platform
@@ -71,6 +66,11 @@ const SignUp = () => {
           }
         },
       });
+
+      if (finalizeError) {
+        console.error(JSON.stringify(finalizeError, null, 2));
+        return;
+      }
     } else {
       console.error('Sign-up attempt not complete:', signUp);
     }

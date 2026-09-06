@@ -38,13 +38,8 @@ const SignIn = () => {
     }
 
     if (signIn.status === 'complete') {
-      await signIn.finalize({
+      const { error: finalizeError } = await signIn.finalize({
         navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session?.currentTask);
-            return;
-          }
-
           const url = decorateUrl('/(tabs)');
           if (url.startsWith('http')) {
             // Only use window.location on web platform
@@ -59,12 +54,14 @@ const SignIn = () => {
           }
         },
       });
-    } else if (signIn.status === 'needs_second_factor') {
-      // Handle MFA if needed (not implemented in this basic flow)
-      console.log('MFA required');
-    } else if (signIn.status === 'needs_client_trust') {
-      // Send email code for client trust verification
-      const emailCodeFactor = signIn.supportedSecondFactors.find(
+
+      if (finalizeError) {
+        console.error(JSON.stringify(finalizeError, null, 2));
+        return;
+      }
+    } else if (signIn.status === 'needs_second_factor' || signIn.status === 'needs_client_trust') {
+      // Send email code for MFA / client trust verification
+      const emailCodeFactor = signIn.supportedSecondFactors?.find(
         (factor) => factor.strategy === 'email_code'
       );
 
@@ -80,13 +77,8 @@ const SignIn = () => {
     await signIn.mfa.verifyEmailCode({ code });
 
     if (signIn.status === 'complete') {
-      await signIn.finalize({
+      const { error: finalizeError } = await signIn.finalize({
         navigate: ({ session, decorateUrl }) => {
-          if (session?.currentTask) {
-            console.log(session?.currentTask);
-            return;
-          }
-
           const url = decorateUrl('/(tabs)');
           if (url.startsWith('http')) {
             // Only use window.location on web platform
@@ -101,13 +93,18 @@ const SignIn = () => {
           }
         },
       });
+
+      if (finalizeError) {
+        console.error(JSON.stringify(finalizeError, null, 2));
+        return;
+      }
     } else {
       console.error('Sign-in attempt not complete:', signIn);
     }
   };
 
-  // Show verification screen if client trust is needed
-  if (signIn.status === 'needs_client_trust') {
+  // Show verification screen if MFA or client trust is needed
+  if (signIn.status === 'needs_second_factor' || signIn.status === 'needs_client_trust') {
     return (
       <SafeAreaView className="auth-safe-area">
         <KeyboardAvoidingView
