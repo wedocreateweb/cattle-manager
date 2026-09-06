@@ -256,7 +256,7 @@
     }
 
     .auth-wordmark {
-        @apply text-3xl font-sans-extrabold text-primary;
+        @apply text-3xl font-sans-extrabold text-primary mb-1;
     }
 
     .auth-wordmark-sub {
