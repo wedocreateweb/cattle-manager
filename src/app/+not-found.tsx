@@ -8,7 +8,7 @@ export default function NotFoundScreen () {
         <Stack.Screen options={{title: 'Oops! Not found'}}/>
         <View>
             <Text>Route not found</Text>
-            <Link href='/(tabs)/index'>
+            <Link href='/(tabs)'>
                 Go back to home screen
             </Link>
         </View>

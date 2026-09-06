@@ -2,6 +2,7 @@
 import ListHeading from "@/components/ListHeading";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import UpcomingSubscriptionCard from "@/components/UpComingSubscriptionCard";
+import { useUser } from '@clerk/expo';
 import dayjs from "dayjs";
 import { styled } from "nativewind";
 import { useState } from "react";
@@ -13,25 +14,28 @@ import images from "../../../constants/images";
 import "../../../global.css";
 import { formatCurrency } from "../../lib/utils";
 
-const SafeAreaView = styled(RNSafeAreaView)
-export default function HomeScreen() {
+const SafeAreaView = styled(RNSafeAreaView);
 
+export default function HomeScreen() {
+  const { user } = useUser();
   const [expnadedSubscriptionId, setExpandedSubscriptionId] = useState<string | null>(null);
+
+  const userName = user?.fullName || user?.firstName || user?.emailAddresses?.[0].emailAddress || HOME_USER.name;
+  const userAvatar = user?.imageUrl ? { uri: user.imageUrl } : images.avatar;
 
   return (
     <SafeAreaView className='flex-1 bg-background p-5'>
-
-
       <FlatList
         ListHeaderComponent={() => (
           <>
             <View className="home-header">
               <View className="home-user">
-                <Image source={images.avatar} className="home-avatar" />
-                <Text className="home-user-name" >{HOME_USER.name}</Text>
+                <Image source={userAvatar} className="home-avatar" />
+                <Text className="home-user-name">{userName}</Text>
               </View>
               <Image source={icons.add} className="home-add-icon" />
             </View>
+
             <View className="home-balance-card">
               <Text className="home-balance-label">
                 Balance
