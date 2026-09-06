@@ -1,5 +1,6 @@
+import { useAuth } from "@clerk/expo";
 import clsx from "clsx";
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { Image, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { tabs } from "../../../constants/data";
@@ -9,6 +10,13 @@ const tabBar = components.tabBar;
 
 const TabLayout = () => {
     const insets = useSafeAreaInsets();
+    const { isSignedIn, isLoaded } = useAuth();
+
+    // Never return a plain <View> from a layout - it breaks Expo Router's navigator tree.
+    // index.tsx waits for isLoaded before redirecting here, so this is safe.
+    if (!isLoaded || !isSignedIn) {
+        return <Redirect href="/(auth)/sign-in" />;
+    }
 
     const TabIcon = ({ focused, icon }: TabIconProps) => {
         return (
